@@ -22,6 +22,7 @@ def clean_dir(path):
 
 def to_ocr(pdf_path, id):
     base_dir = '/tmp/pdf_to_ocr_out_' + str(id) + '/'
+ 
     clean_dir(base_dir)
 
     assert os.path.exists(base_dir)
@@ -31,7 +32,9 @@ def to_ocr(pdf_path, id):
     command = 'convert -density 300 -units PixelsPerInch '\
         + pdf_path + ' -quality 100 ' + image_out
     call(command.split())
-    print('image conversion done')
+    #print('image conversion done')
+    #mhr
+    print(image_out)
 
     with open(base_dir + 'png.list', 'w') as png_list:
         files = [f for f in os.listdir(base_dir) if f.endswith('.png')]
@@ -43,8 +46,10 @@ def to_ocr(pdf_path, id):
 
     with open(base_dir + 'ocr.txt', 'r') as ocr:
         text = ocr.read()
-    print('ocr done')
+    #mhr
+    print(base_dir + 'ocr done')
 
+    
     clean_dir(base_dir)
     os.removedirs(base_dir)
 
@@ -61,17 +66,24 @@ def update_document_ocr(id, api_key=None, url=None):
     if len(req.content) > 50000:
         return
     item = req.json()
+#mhr
+    print(req.text)
     if 'message' in item and item['message'].endswith('Record not found.'):
         print('Record with id ' + str(id) + ' could not be found.')
         return
     print('file retrieved')
 
     pdf_path = '/tmp/ocr_pdf_out_' + str(id) + '.pdf'
+    print(pdf_path)
     if 'file_urls' in item:
         pdf = requests.get(item['file_urls']['original'])
         with open(pdf_path, 'wb') as out:
             out.write(pdf.content)
-            print('pdf written')
+            #mhr
+            print('pdf written' + pdf_path)
+        #mhr
+    else: 
+        print('file_urls value not found in run_ocr.py')
 
     ocr_text = to_ocr(pdf_path, id)
 
